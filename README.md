@@ -1,7 +1,7 @@
 # Multimodal Neuroimaging Feature Learning With Multimodal Convolutional Neuro Networks for Diagnosis of Alzheimer’s Disease
 ## Introduction
-！[image] https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1567352132330&di=1c3b7381caa9eddedc5c11b83b56d652&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20181218%2F2fa4a33cadea4fd58609f104b31bd788.jpeg
-> MRI从大脑结构上大脑的萎缩进行研究，DTI用于分析大脑微结构水平的水扩散，而PET则利用脑葡萄糖代谢率进行AD分类。这些生物标志物产生互补的信息，即，不同的模式从不同的角度获取疾病信息，从而提高对疾病模式的理解。
+！[image](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1567352132330&di=1c3b7381caa9eddedc5c11b83b56d652&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20181218%2F2fa4a33cadea4fd58609f104b31bd788.jpeg)
+> MRI从大脑结构上大脑的萎缩进行研究，DTI用于分析大脑微结构水平的水扩散，而PET则利用脑葡萄糖代谢率进行AD分类。这些生物标志物产生互补的信息，即，不同的模式从不同的角度获取疾病信息，从而提高对疾病模式的理解。9
 ## ImageFusion-AD
 
 ### pre-progress
@@ -33,6 +33,9 @@
 > 由于内核可以看作是数据点之间的相似函数，所以MKL中特定于模式的内核可以更好地融合异构数据。
 >- Neural Networks
 > 深度神经网络方法在数据融合中的一大优点是能够从大量的数据中学习。其次，最近的神经结构允许对多模态表示组件和融合组件进行端到端训练。最后，与非神经网络系统相比，该方法具有较好的性能，能够学习其他方法难以学习的复杂决策边界.缺点是是它们缺乏可解释性。很难判断预测的依据是什么，以及哪种模式或特征发挥了重要作用。此外，神经网络需要大量的训练数据集才能成功。
+
+- FUSION GOAL：
+>- 本课题拟设计一种端到端的多模态数据生成——判别模型，多模态的数据融合采用。生成模型综合DBM和神经网络的优缺点，并在其中寻找突破点。当有多个模态被用于训练判别模型时，一部分的单模态输入被屏蔽。即使没有一种模式，隐藏的神经元也可以被训练并对结果做出预测。该策略的目的是使第一个隐藏层的一些隐藏神经元容易被独立的模态激活。即使是只有单模态的数据，也能应用于被训练的网络。
 
 - 对原始图像进行融合；这涉及图像的配准以及对齐，SPM软件可以完成这些预处理并对图像进行融合。
 - 对特征图进行融合；之前看到有论文提取图像SIFT和KAZE特征，然后再进行分类，我们也可以基于此提取融合再分类。另外就是可以尝试融合卷积之后的特征图。（这方面还不是很了解）
