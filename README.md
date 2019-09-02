@@ -1,6 +1,6 @@
 # Multimodal Neuroimaging Feature Learning With Multimodal Convolutional Neuro Networks for Diagnosis of Alzheimer’s Disease
 ## Introduction
-！[image](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1567352132330&di=1c3b7381caa9eddedc5c11b83b56d652&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20181218%2F2fa4a33cadea4fd58609f104b31bd788.jpeg)
+![image](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1567352132330&di=1c3b7381caa9eddedc5c11b83b56d652&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20181218%2F2fa4a33cadea4fd58609f104b31bd788.jpeg)
 > MRI从大脑结构上大脑的萎缩进行研究，DTI用于分析大脑微结构水平的水扩散，而PET则利用脑葡萄糖代谢率进行AD分类。这些生物标志物产生互补的信息，即，不同的模式从不同的角度获取疾病信息，从而提高对疾病模式的理解。9
 ## ImageFusion-AD
 
