@@ -30,8 +30,8 @@ def mycopyfile(srcfile,dstfile):
 
 
 
-root_path = 'D:\Master\FusionData\FUSION_AD_PET\ADNI'
-save_path= 'D:\Master\FusionData\AD_PET'
+root_path = 'D:/Master/FusionData/FUSION_NC_PET/ADNI'
+save_path= 'D:/Master/FusionData/NC_PET'
 imgs = os.listdir(root_path)
 img_num=[]
 for img in imgs:
@@ -50,10 +50,12 @@ for img in imgs:
 
     src_path=os.path.join(root_path,img7)
     dir_path=os.path.join(save_path,img)
-    for pet in os.listdir(src_path):
-        src_pet=os.path.join(src_path,pet)
-        dir_pet=os.path.join(dir_path,pet)
-        mycopyfile(src_pet,dir_pet)
+
+    pet =os.listdir(src_path)[0]
+
+    src_pet=os.path.join(src_path,pet)
+    dir_pet=os.path.join(dir_path,pet)
+    mycopyfile(src_pet,dir_pet)
 
 
 
