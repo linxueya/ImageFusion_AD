@@ -4,9 +4,10 @@ import os
 import re
 import time
 import datetime
+import pdb
 
 
-def write_nii_addr(root_path, file_path, original_doc, gray_matter_doc, white_matter_doc, CSF_doc, lable):
+def write_nii_addr(root_path, file_path, mri_doc,pet_doc, lable):
     ### 参数解释
     # root_path: 各个模态的根目录, 如 825_Subject_NC, 该变量不随目录的递归而变化. 用于将.txt文档存放于模态的根目录
     # file_path: 该变量随目录的递归而变化, 直到找到.nii为止.
@@ -18,33 +19,21 @@ def write_nii_addr(root_path, file_path, original_doc, gray_matter_doc, white_ma
     for file_name in files:
         _file_path = os.path.join(file_path, file_name)
         if os.path.isdir(_file_path):
-            write_nii_addr(root_path, _file_path, original_doc, gray_matter_doc, white_matter_doc, CSF_doc, lable)
+            write_nii_addr(root_path, _file_path, mri_doc, pet_doc, lable)
         else:
             postfix = file_name.split('.')[1]
-            if (postfix == "nii"):
+            if (postfix == "dcm"):
                 pre_fix = file_name.split('.')[0]
                 # gray_matter
-                if (re.match('mwp1', pre_fix)):
-                    _name = lable + "_gray_matter.txt"
-                    # print("[xx] = {}".format(file_path))
-                    with open(os.path.join(root_path, _name), "a") as f:
-                        f.writelines(_file_path + "\n")
 
-                # white_matter
-                elif (re.match('mwp2', pre_fix)):
-                    _name = lable + "_white_matter.txt"
-                    with open(os.path.join(root_path, _name), "a") as f:
-                        f.writelines(_file_path + "\n")
-
-                # CSF
-                elif (re.match('wm', pre_fix)):
-                    _name = lable + "_CSF.txt"
+                if pre_fix.find("MR")>=0:
+                    _name = lable + "_mri.txt"
                     with open(os.path.join(root_path, _name), "a") as f:
                         f.writelines(_file_path + "\n")
 
                 # original
                 else:
-                    _name = lable + "_original.txt"
+                    _name = lable + "_pet.txt"
                     with open(os.path.join(root_path, _name), "a") as f:
                         f.writelines(_file_path + "\n")
 
@@ -58,26 +47,18 @@ def create_modal_file(root_path, lable):
     # 灰质：mwp1ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
     # 白质：mwp2ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
     # 脑脊液：wmADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
-    original_doc = os.path.join(root_path, "original")
-    gray_matter_doc = os.path.join(root_path, "gray_matter")
-    white_matter_doc = os.path.join(root_path, "white_matter")
-    CSF_doc = os.path.join(root_path, "CSF")
+    mri_doc = os.path.join(root_path, "mri_jpg")
+    pet_doc = os.path.join(root_path, "pet_jpg")
 
-    if not os.path.exists(original_doc):
-        print("Create file original_doc = {}".format(original_doc))
-        os.makedirs(original_doc)
 
-    if not os.path.exists(gray_matter_doc):
-        print("Create file gray_matter_doc = {}".format(gray_matter_doc))
-        os.makedirs(gray_matter_doc)
+    if not os.path.exists(mri_doc):
+        print("Create file original_doc = {}".format(mri_doc))
+        os.makedirs(mri_doc)
 
-    if not os.path.exists(white_matter_doc):
-        print("Create file white_matter_doc = {}".format(white_matter_doc))
-        os.makedirs(white_matter_doc)
+    if not os.path.exists(pet_doc):
+        print("Create file gray_matter_doc = {}".format(pet_doc))
+        os.makedirs(pet_doc)
 
-    if not os.path.exists(CSF_doc):
-        print("Create file CSF_doc = {}".format(CSF_doc))
-        os.makedirs(CSF_doc)
 
     # 预先进行备份当前根目录下所有.txt文档并删除它们
     import shutil
@@ -104,27 +85,18 @@ def create_modal_file(root_path, lable):
                     os.remove(source_dir)
 
     # 逻辑程序
-
-    write_nii_addr(root_path, file_path, original_doc, gray_matter_doc, white_matter_doc, CSF_doc, lable)
+    file_path = 'D:\Master\FusionData/NC_MRI'
+    write_nii_addr(root_path, file_path, mri_doc, pet_doc, lable)
 
 
 # 递归遍历/root目录下所有文件
 if __name__ == "__main__":
-    # root_path_AD = '.\825_Subject_AD'
+    # root_path_AD = '.\Subject_AD'
     # create_modal_file(root_path_AD, "AD")
 
-    root_path_NC = '/home/shimy/FusionData/Subject_AD'
-    file_path = '/home/shimy/FusionData/AD_PET'
+    root_path_NC = '.\Subject_NC'
     create_modal_file(root_path_NC, "NC")
 
-# root_path_pMCI = '.\825_subject_pMCI'
-# create_modal_file(root_path_pMCI, "pMCI")
-
-# root_path_uMCI = '.\825_Subject_sMCI'
-# create_modal_file(root_path_uMCI, "sMCI")
-
-# root_path_sMCI = '.\825_Subject_uMCI'
-# create_modal_file(root_path_sMCI, "uMCI")
 
 
 ### run it
