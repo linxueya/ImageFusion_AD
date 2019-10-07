@@ -1,0 +1,9 @@
+19:19:47 Epoch[0] Iteration[10/40]  Loss:0.6931278586  LR:0.01000
+19:19:48 Epoch[0] Iteration[20/40]  Loss:0.6931402504  LR:0.01000
+19:19:49 Epoch[0] Iteration[30/40]  Loss:0.6928338170  LR:0.01000
+19:19:50 Epoch[0] Iteration[40/40]  Loss:0.6934982061  LR:0.01000
+19:19:52 Epoch[1] Iteration[10/40]  Loss:0.6928372800  LR:0.01000
+19:19:53 Epoch[1] Iteration[20/40]  Loss:0.6924023986  LR:0.01000
+19:21:06 Epoch[0] Iteration[10/40]  Loss:0.6930821896  LR:0.01000
+19:21:07 Epoch[0] Iteration[20/40]  Loss:0.6929775953  LR:0.01000
+19:21:08 Epoch[0] Iteration[30/40]  Loss:0.6936302185  LR:0.01000
