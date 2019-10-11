@@ -11,6 +11,15 @@
   - 而对于单一的格式如DCM，对应的切片数量也不一样，在选择top N切片时，每个切片对应的位置可能会有一定的差异。因此我们需要将每个样本归一化到相同的切片数量。
 #### 3D reconstruction
   - 将每个样本重构成3D模型，在重采样抽取每个切片。
+#### toolbox
+- spm:fmri处理需要slice timing， pet不需要
+  pre_fix a  slice timing 隔层扫描（1 3 5 ……6 4 2）消除时间上的差异，线性回归
+          r  realign 头动校正
+          y  coregister 在这一步需要AC校正（display设置原点）
+          c  segment 分割结构像（白质，灰质，脑脊液）
+          w  normalise
+          s  smooth
+
 
 ### discussion
 - MULTIMODAL REPRESENTATIONS:
