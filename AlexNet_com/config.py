@@ -1,8 +1,6 @@
 data_mri = '/home/shimy/FusionData/total_mri'
 data_pet = '/home/shimy/FusionData/total_pet'
-# data_dir = '/home/shimy/FusionData/data_mri'
-# model_path = './log/vgg_400.pth'
-model_path = 'model/vgg_400.pth'
+model_path = 'model/vgg_400.pth'#c custom  m  mri  p pet
 batch_size = 32
 input_size = (227, 227)
 
