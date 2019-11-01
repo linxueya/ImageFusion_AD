@@ -50,3 +50,15 @@
 - 对特征图进行融合；之前看到有论文提取图像SIFT和KAZE特征，然后再进行分类，我们也可以基于此提取融合再分类。另外就是可以尝试融合卷积之后的特征图。（这方面还不是很了解）
 - 用两个网络分别训练MRI,PET。在SOFTMAX之前将两个网络串联起来。
 ![image](https://i.loli.net/2018/12/18/5c18dc7cc6c10.png)
+
+### 神经网络训练
+- dataloader的均值方差选择
+
+```
+if 'coco' in args.dataset:
+   mean_vals = [0.471, 0.448, 0.408]
+   std_vals = [0.234, 0.239, 0.242]
+elif 'imagenet' in args.dataset:
+   mean_vals = [0.485, 0.456, 0.406]
+   std_vals = [0.229, 0.224, 0.225]
+```
