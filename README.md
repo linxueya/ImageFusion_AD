@@ -66,3 +66,8 @@ elif 'imagenet' in args.dataset:
 ```
 - 遇到的问题
 > 网络的泛化能力太差，将数据集打乱重新生成后，原有的模型推理之后的准确率就会发生变化
+  解决办法：将生成的数据不经过裁剪这一步
+
+
+### deep fused net
+> 以deep fused net 和 acnet 为例对多模态融合网络进行优化
