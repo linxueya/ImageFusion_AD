@@ -7,8 +7,8 @@ class DefaultConfig(object):
     vis_port =8097 # visdom 端口
     model = 'AlexNet'  # 使用的模型，名字必须与models/__init__.py中的名字一致
 
-    train_data_root = '/home/shimy/FusionData/total_mri/train'  # 训练集存放路径
-    test_data_root = '/home/shimy/FusionData/total_mri/validation'  # 测试集存放路径
+    train_data_root = '/home/shimy/FusionData/gray_mri/train'  # 训练集存放路径
+    test_data_root = '/home/shimy/FusionData/gray_mri/validation'  # 测试集存放路径
     load_model_path = None  # 加载预训练的模型的路径，为None代表不加载
 
     batch_size = 32  # batch size

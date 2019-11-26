@@ -3,7 +3,7 @@ import pdb
 import numpy as np
 import cv2
 
-filepath =  '/home/shimy/FusionData/gray_mri/train'  # 数据集目录
+filepath =  '/home/shimy/FusionData/total_mri/train'  # 数据集目录
 pathDir = os.listdir(filepath)
 
 R_channel = 0

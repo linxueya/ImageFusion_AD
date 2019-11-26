@@ -34,7 +34,7 @@ class DogCat(data.Dataset):
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.ToTensor(),
-                T.Normalize(mean=[0.329747], std=[0.329747])
+                T.Normalize(mean=[0.055802], std=[0.107193])
             ])
         else:
             self.transforms = T.Compose([
@@ -42,7 +42,7 @@ class DogCat(data.Dataset):
                 T.CenterCrop(224),
                 T.RandomHorizontalFlip(),
                 T.ToTensor(),
-                T.Normalize(mean=[0.293001], std=[0.327488])
+                T.Normalize(mean=[0.055708], std=[0.107309])
             ])
 
     def __getitem__(self, index):

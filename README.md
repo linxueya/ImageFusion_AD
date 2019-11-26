@@ -75,3 +75,8 @@ elif 'imagenet' in args.dataset:
 
 ### deep fused net
 > 以deep fused net 和 acnet 为例对多模态融合网络进行优化
+
+### train log
+
+ACNet   84
+VGGNet  83
