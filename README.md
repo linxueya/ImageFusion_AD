@@ -68,13 +68,14 @@ elif 'imagenet' in args.dataset:
 > 网络的泛化能力太差，将数据集打乱重新生成后，原有的模型推理之后的准确率就会发生变化
   解决办法：将生成的数据不经过裁剪这一步
 > cat12 的输出文件是什么？
-  mwp1outputResult gray mater
+  mwp1outputResult gray mater 94.74 mri 96.20 pet
   mwp2outputResult white mater
   p0outputResult   unknown  75%
   wmoutputResult   unknown  
 
 ### deep fused net
 > 以deep fused net 和 acnet 为例对多模态融合网络进行优化
+    acnet 99%
 
 ### train log
 
