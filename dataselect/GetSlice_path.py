@@ -3,6 +3,7 @@
 import os
 import re
 import datetime
+import pdb
 
 
 def write_nii_addr(root_path, save_file, last_root_path):
@@ -23,7 +24,9 @@ def write_nii_addr(root_path, save_file, last_root_path):
             write_nii_addr(root_path, save_file, last_root_path)
             selected_path = select_slice_path(root_path)
             if (selected_path != "NONE"):
-                save_file.writelines(selected_path + "\n")
+                for img in os.listdir(selected_path):
+                    img_path=os.path.join(selected_path,img)
+                    save_file.writelines(img_path + "\n")
 
             root_path = last_root_path  # 递归遍历的回馈 - feed-back
 
@@ -32,6 +35,7 @@ def write_nii_addr(root_path, save_file, last_root_path):
 
 def select_slice_path(file_path):
     satisified_path = ['Xslice', 'Yslice', 'Zslice']
+    # satisified_path = [ 'Zslice']
     target_file = "NONE"
     for item in satisified_path:
         if item in file_path:
@@ -48,7 +52,8 @@ def execute(root_path, save_file_name):
     if os.path.exists(save_file_path):
         i = datetime.datetime.now()
         date = str(i.year) + str(i.month) + str(i.day) + str(i.hour) + str(i.minute) + str(i.second)
-        new_name = save_file_path + date +".bak"
+        pre_name=save_file_path.split('.')[0]
+        new_name = pre_name + date +".bak"
         os.rename(save_file_path, new_name)
         print("copied and deleted file, new_name = {}".format(new_name))
     # os.remove(save_file_path)
@@ -61,7 +66,29 @@ def execute(root_path, save_file_name):
 # 递归遍历/root目录下所有文件
 if __name__ == "__main__":
 
-    root_path = 'D:\Master\FusionData\AD_JPG'
-    save_file_name =  'AD_gray_matter_Slices_path.txt'
+    root_path = '/home/shimy/FusionData/Subject_NC/mri_bmp'
+    save_file_name =  '/home/shimy/FusionData/Slice/NCMRI_Slice.txt'
     execute(root_path, save_file_name)
+    root_path = '/home/shimy/FusionData/Subject_AD/mri_bmp'
+    save_file_name =  '/home/shimy/FusionData/Slice/ADMRI_Slice.txt'
+    execute(root_path, save_file_name)
+    # root_path = '/home/shimy/FusionData/Subject_EMCI/mri_bmp'
+    # save_file_name =  '/home/shimy/FusionData/Slice/EMCIMRI_ZSlice.txt'
+    # execute(root_path, save_file_name)
+    # root_path = '/home/shimy/FusionData/Subject_LMCI/mri_bmp'
+    # save_file_name =  '/home/shimy/FusionData/Slice/LMCIMRI_ZSlice.txt'
+    # execute(root_path, save_file_name)
+
+    # root_path = '/home/shimy/FusionData/Subject_NC/pet_bmp'
+    # save_file_name =  '/home/shimy/FusionData/Slice/NCPET_ZSlice.txt'
+    # execute(root_path, save_file_name)
+    # root_path = '/home/shimy/FusionData/Subject_AD/pet_bmp'
+    # save_file_name =  '/home/shimy/FusionData/Slice/ADPET_ZSlice.txt'
+    # execute(root_path, save_file_name)
+    # root_path = '/home/shimy/FusionData/Subject_EMCI/pet_bmp'
+    # save_file_name =  '/home/shimy/FusionData/Slice/EMCIPET_ZSlice.txt'
+    # execute(root_path, save_file_name)
+    # root_path = '/home/shimy/FusionData/Subject_LMCI/pet_bmp'
+    # save_file_name =  '/home/shimy/FusionData/Slice/LMCIPET_ZSlice.txt'
+    # execute(root_path, save_file_name)
 

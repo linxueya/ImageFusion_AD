@@ -3,6 +3,13 @@
 Created on  20190903
 
 @author: linxueya
+
+    文件夹：原图，灰质，白质，脑脊液
+    documents: original, gray_matter, white_matter, CSF
+    原图：ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
+    灰质：mwp1ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
+    白质：mwp2ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
+    脑脊液：wmADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
 """
 
 import os,shutil
@@ -29,33 +36,26 @@ def mycopyfile(srcfile,dstfile):
         print ("copy %s -> %s"%( srcfile,dstfile))
 
 
-
-root_path = 'D:/Master/FusionData/FUSION_NC_PET/ADNI'
-save_path= 'D:/Master/FusionData/NC_PET'
+root_path = '/home/shimy/FusionData/MRI_postpro/NC'
+save_path= '/home/shimy/FusionData/MRI_postpro/NC_MRI'
+# root_path = '/home/shimy/FusionData/subjects/LMCI'
+# save_path= '/home/shimy/FusionData/subjects/LMCI_PET'
 imgs = os.listdir(root_path)
-img_num=[]
+
 for img in imgs:
-    img1 = os.path.join(root_path,img)
-    img2 = os.listdir(img1)
-    img3 = os.path.join(img1,img2[0])
-    img4 = os.listdir(img3)
-    img5 = os.path.join(img3,img4[0])
-    img6 = os.listdir(img5)
-    img7 = os.path.join(img5,img6[0])
+    img1 = os.path.join(root_path,img,'mri')
+    # # the source file name of mri
+    file='mwp1outputResult.nii'
+    new_file='wmmrioutputResult.nii'
 
-    #os.chdir(img7)
-    #n=len(os.listdir(img7))
-    #img_num.append(n)
-    #print(img,n)
+    # the source file name of pet
+    # file='swp{}.nii'.format(img)
+    # new_file='swppetoutputResult.nii'
+    file_name=os.path.join(img1,file)
+    #['mwp1outputResult.nii', 'mwp2outputResult.nii', 'p0outputResult.nii', 'wmoutputResult.nii']
+    save_name=os.path.join(save_path,img,new_file)
+    mycopyfile(file_name,save_name)
 
-    src_path=os.path.join(root_path,img7)
-    dir_path=os.path.join(save_path,img)
-
-    pet =os.listdir(src_path)[0]
-
-    src_pet=os.path.join(src_path,pet)
-    dir_pet=os.path.join(dir_path,pet)
-    mycopyfile(src_pet,dir_pet)
 
 
 

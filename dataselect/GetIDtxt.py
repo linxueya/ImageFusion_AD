@@ -6,11 +6,12 @@ Created on  20190905
 """
 
 import os
-
-root_path= 'D:\Master\FusionData\AD_PET'
+import pdb
+root_path= '/home/shimy/FusionData/NC_PET'
 
 files=os.listdir(root_path)
-f=open('825_Subject_NC.txt','w')
+pdb.set_trace()
+f=open('tempnc.txt','w')
 for file in files:
     print(file)
     f.write(file+'\n')

@@ -22,11 +22,11 @@ def write_nii_addr(root_path, file_path, mri_doc,pet_doc, lable):
             write_nii_addr(root_path, _file_path, mri_doc, pet_doc, lable)
         else:
             postfix = file_name.split('.')[1]
-            if (postfix == "dcm"):
+            if (postfix == "nii"):
                 pre_fix = file_name.split('.')[0]
                 # gray_matter
 
-                if pre_fix.find("MR")>=0:
+                if pre_fix.find("mri")>=0:
                     _name = lable + "_mri.txt"
                     with open(os.path.join(root_path, _name), "a") as f:
                         f.writelines(_file_path + "\n")
@@ -40,15 +40,15 @@ def write_nii_addr(root_path, file_path, mri_doc,pet_doc, lable):
             # print(os.path.join(file_path))
 
 
-def create_modal_file(root_path, lable):
+def create_modal_file(root_path, file_path, lable):
     # 文件夹：原图，灰质，白质，脑脊液
     # documents: original, gray_matter, white_matter, CSF
     # 原图：ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
     # 灰质：mwp1ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
     # 白质：mwp2ADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
     # 脑脊液：wmADNI_002_S_0619_MR_MPR-R__GradWarp__N3_Br_20070411125307309_S15145_I48616.nii
-    mri_doc = os.path.join(root_path, "mri_jpg")
-    pet_doc = os.path.join(root_path, "pet_jpg")
+    mri_doc = os.path.join(root_path, "mri_bmp")
+    pet_doc = os.path.join(root_path, "pet_bmp")
 
 
     if not os.path.exists(mri_doc):
@@ -85,19 +85,40 @@ def create_modal_file(root_path, lable):
                     os.remove(source_dir)
 
     # 逻辑程序
-    file_path = 'D:\Master\FusionData/NC_MRI'
     write_nii_addr(root_path, file_path, mri_doc, pet_doc, lable)
 
 
 # 递归遍历/root目录下所有文件
 if __name__ == "__main__":
-    # root_path_AD = '.\Subject_AD'
-    # create_modal_file(root_path_AD, "AD")
+    root_path_AD = '/home/shimy/FusionData/Subject_AD'
+    file_path = '/home/shimy/FusionData/MRI_postpro/AD_MRI'
+    create_modal_file(root_path_AD, file_path,"AD")
 
-    root_path_NC = '.\Subject_NC'
-    create_modal_file(root_path_NC, "NC")
+    root_path_NC = '/home/shimy/FusionData/Subject_NC'
+    file_path = '/home/shimy/FusionData/MRI_postpro/NC_MRI'
+    create_modal_file(root_path_NC, file_path,"NC")
 
+    root_path_EMCI = '/home/shimy/FusionData/Subject_EMCI'
+    file_path = '/home/shimy/FusionData/MRI_postpro/EMCI_MRI'
+    create_modal_file(root_path_EMCI, file_path,"EMCI")
 
+    root_path_LMCI = '/home/shimy/FusionData/Subject_LMCI'
+    file_path = '/home/shimy/FusionData/MRI_postpro/LMCI_MRI'
+    create_modal_file(root_path_LMCI, file_path,"LMCI")
 
-### run it
-### python .\get_data.py > result.txt
+    # root_path_AD = '/home/shimy/FusionData/Subject_AD'
+    # file_path = '/home/shimy/FusionData/subjects/AD_PET'
+    # create_modal_file(root_path_AD, file_path,"AD")
+    #
+    # root_path_NC = '/home/shimy/FusionData/Subject_NC'
+    # file_path = '/home/shimy/FusionData/subjects/NC_PET'
+    # create_modal_file(root_path_NC, file_path,"NC")
+    #
+    # root_path_EMCI = '/home/shimy/FusionData/Subject_EMCI'
+    # file_path = '/home/shimy/FusionData/subjects/EMCI_PET'
+    # create_modal_file(root_path_EMCI, file_path,"EMCI")
+    #
+    # root_path_LMCI = '/home/shimy/FusionData/Subject_LMCI'
+    # file_path = '/home/shimy/FusionData/subjects/LMCI_PET'
+    # create_modal_file(root_path_LMCI, file_path,"LMCI")
+
