@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 import math
+import ipdb
 import torch.utils.model_zoo as model_zoo
 from .basic_module import BasicModule
 
@@ -12,14 +13,14 @@ model_urls = {
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
 }
 
-class ACNet(BasicModule):
+class ACNet34cat(BasicModule):
     def __init__(self, num_classes=2, pretrained=False):
-        super(ACNet, self).__init__()
+        super(ACNet34cat, self).__init__()
 
-        self.model_name = 'ACNet'
+        self.model_name = 'ACNet34cat'
 
         layers = [3, 4, 6, 3]
-        block = Bottleneck
+        block = BasicBlock
         # RGB image branch
         self.inplanes = 64
         self.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
@@ -47,18 +48,19 @@ class ACNet(BasicModule):
         # merge branch
         self.atten_rgb_0 = self.channel_attention(64)
         self.atten_depth_0 = self.channel_attention(64)
-        self.maxpool_m = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.atten_rgb_1 = self.channel_attention(64*4)
-        self.atten_depth_1 = self.channel_attention(64*4)
+
+        self.atten_rgb_1 = self.channel_attention(64*block.expansion)
+        self.atten_depth_1 = self.channel_attention(64*block.expansion)
         # self.conv_2 = nn.Conv2d(64*4, 64*4, kernel_size=1) #todo 用cat和conv降回通道数
-        self.atten_rgb_2 = self.channel_attention(128*4)
-        self.atten_depth_2 = self.channel_attention(128*4)
-        self.atten_rgb_3 = self.channel_attention(256*4)
-        self.atten_depth_3 = self.channel_attention(256*4)
-        self.atten_rgb_4 = self.channel_attention(512*4)
-        self.atten_depth_4 = self.channel_attention(512*4)
+        self.atten_rgb_2 = self.channel_attention(128*block.expansion)
+        self.atten_depth_2 = self.channel_attention(128*block.expansion)
+        self.atten_rgb_3 = self.channel_attention(256*block.expansion)
+        self.atten_depth_3 = self.channel_attention(256*block.expansion)
+        self.atten_rgb_4 = self.channel_attention(512*block.expansion)
+        self.atten_depth_4 = self.channel_attention(512*block.expansion)
 
         self.inplanes = 64
+        self.maxpool_m = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
         self.layer1_m = self._make_layer(block, 64, layers[0])
         self.layer2_m = self._make_layer(block, 128, layers[1], stride=2)
         self.layer3_m = self._make_layer(block, 256, layers[2], stride=2)
@@ -79,6 +81,15 @@ class ACNet(BasicModule):
         if pretrained:
             self._load_resnet_pretrained()
 
+    def netcat(self, branch0, num_channel, branch1, atten1, branch2, atten2):
+        conv = nn.Conv2d(num_channel, num_channel // 2 , kernel_size=1)
+        branch = torch.cat([branch1.mul(atten1), branch2.mul(atten2)], 1)
+        branch = conv(branch)
+        if branch0 is not None:
+            branch = torch.cat([branch0, branch], 1)
+            branch = conv(branch)
+        return branch
+
     def forward(self, rgb, depth, phase_checkpoint=False):
         rgb = self.conv1(rgb)
         rgb = self.bn1(rgb)
@@ -86,10 +97,11 @@ class ACNet(BasicModule):
         depth = self.conv1_d(depth)
         depth = self.bn1_d(depth)
         depth = self.relu_d(depth)
-        # print('!!!!! ', rgb.shape)
         atten_rgb = self.atten_rgb_0(rgb)
         atten_depth = self.atten_depth_0(depth)
-        m0 = rgb.mul(atten_rgb) + depth.mul(atten_depth)
+
+        num_channels =rgb.size()[1] * 2  # 两个branch cat 之后channel变大
+        m0 = self.netcat(None, num_channels, rgb, atten_rgb, depth, atten_depth)
 
         rgb = self.maxpool(rgb)
         depth = self.maxpool_d(depth)
@@ -102,7 +114,9 @@ class ACNet(BasicModule):
 
         atten_rgb = self.atten_rgb_1(rgb)
         atten_depth = self.atten_depth_1(depth)
-        m1 = m + rgb.mul(atten_rgb) + depth.mul(atten_depth)
+
+        num_channels =rgb.size()[1] * 2
+        m1 = self.netcat(m, num_channels, rgb, atten_rgb, depth, atten_depth)
 
         # block 2
         rgb = self.layer2(rgb)
@@ -111,7 +125,9 @@ class ACNet(BasicModule):
 
         atten_rgb = self.atten_rgb_2(rgb)
         atten_depth = self.atten_depth_2(depth)
-        m2 = m + rgb.mul(atten_rgb) + depth.mul(atten_depth)
+
+        num_channels =atten_rgb.size()[1] * 2
+        m2 = self.netcat(m, num_channels, rgb, atten_rgb, depth, atten_depth)
 
         # block 3
         rgb = self.layer3(rgb)
@@ -120,7 +136,9 @@ class ACNet(BasicModule):
 
         atten_rgb = self.atten_rgb_3(rgb)
         atten_depth = self.atten_depth_3(depth)
-        m3 = m + rgb.mul(atten_rgb) + depth.mul(atten_depth)
+
+        num_channels =rgb.size()[1] * 2
+        m3 = self.netcat(m, num_channels, rgb, atten_rgb, depth, atten_depth)
 
         # block 4
         rgb = self.layer4(rgb)
@@ -129,13 +147,17 @@ class ACNet(BasicModule):
 
         atten_rgb = self.atten_rgb_4(rgb)
         atten_depth = self.atten_depth_4(depth)
-        m4 = m + rgb.mul(atten_rgb) + depth.mul(atten_depth)
 
+        num_channels =rgb.size()[1] * 2
+        m4 = self.netcat(m, num_channels, rgb, atten_rgb, depth, atten_depth)
+
+        # fc
         m5 = self.avgpool(m4)
         m5 = m5.reshape(m5.size(0), -1)
         m5 = self.fc(m5)
 
-        return  m5  # channel of m is 2048
+        ipdb.set_trace()
+        return  m5  # channel of m5 is 512
 
 
     def _make_layer(self, block, planes, blocks, stride=1, dilation=1):
@@ -158,11 +180,12 @@ class ACNet(BasicModule):
     def channel_attention(self, num_channel, ablation=False):
         # todo add convolution here
         pool = nn.AdaptiveAvgPool2d(1)
-        conv = nn.Conv2d(num_channel, num_channel, kernel_size=1)
+        conv = nn.Conv2d(num_channel, num_channel , kernel_size=1)
         # bn = nn.BatchNorm2d(num_channel)
         activation = nn.Sigmoid() # todo modify the activation function
 
         return nn.Sequential(*[pool, conv, activation])
+
 
     def _load_resnet_pretrained(self):
         pretrain_dict = model_zoo.load_url(model_urls['resnet50'])
@@ -186,6 +209,46 @@ class ACNet(BasicModule):
                     model_dict[k[:6]+'_m'+k[6:]] = v
         state_dict.update(model_dict)
         self.load_state_dict(state_dict)
+
+
+class BasicBlock(nn.Module):
+    expansion = 1
+
+    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
+                 base_width=64, dilation=1, norm_layer=None):
+        super(BasicBlock, self).__init__()
+        if norm_layer is None:
+            norm_layer = nn.BatchNorm2d
+        if groups != 1 or base_width != 64:
+            raise ValueError('BasicBlock only supports groups=1 and base_width=64')
+        if dilation > 1:
+            raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
+        # Both self.conv1 and self.downsample layers downsample the input when stride != 1
+        self.conv1 = conv3x3(inplanes, planes, stride)
+        self.bn1 = norm_layer(planes)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = conv3x3(planes, planes)
+        self.bn2 = norm_layer(planes)
+        self.downsample = downsample
+        self.stride = stride
+
+    def forward(self, x):
+        identity = x
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out += identity
+        out = self.relu(out)
+
+        return out
 
 
 class Bottleneck(nn.Module):
@@ -223,7 +286,9 @@ class Bottleneck(nn.Module):
 
         out += residual
         out = self.relu(out)
+
         return out
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"

@@ -12,14 +12,14 @@ model_urls = {
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
 }
 
-class ACNet(BasicModule):
+class ACNet18(BasicModule):
     def __init__(self, num_classes=2, pretrained=False):
-        super(ACNet, self).__init__()
+        super(ACNet18, self).__init__()
 
-        self.model_name = 'ACNet'
+        self.model_name = 'ACNet18'
 
-        layers = [3, 4, 6, 3]
-        block = Bottleneck
+        layers = [2, 2, 2, 2]
+        block = BasicBlock
         # RGB image branch
         self.inplanes = 64
         self.conv1 = nn.Conv2d(1, 64, kernel_size=7, stride=2, padding=3,
@@ -48,15 +48,15 @@ class ACNet(BasicModule):
         self.atten_rgb_0 = self.channel_attention(64)
         self.atten_depth_0 = self.channel_attention(64)
         self.maxpool_m = nn.MaxPool2d(kernel_size=3, stride=2, padding=1)
-        self.atten_rgb_1 = self.channel_attention(64*4)
-        self.atten_depth_1 = self.channel_attention(64*4)
+        self.atten_rgb_1 = self.channel_attention(64*block.expansion)
+        self.atten_depth_1 = self.channel_attention(64*block.expansion)
         # self.conv_2 = nn.Conv2d(64*4, 64*4, kernel_size=1) #todo 用cat和conv降回通道数
-        self.atten_rgb_2 = self.channel_attention(128*4)
-        self.atten_depth_2 = self.channel_attention(128*4)
-        self.atten_rgb_3 = self.channel_attention(256*4)
-        self.atten_depth_3 = self.channel_attention(256*4)
-        self.atten_rgb_4 = self.channel_attention(512*4)
-        self.atten_depth_4 = self.channel_attention(512*4)
+        self.atten_rgb_2 = self.channel_attention(128*block.expansion)
+        self.atten_depth_2 = self.channel_attention(128*block.expansion)
+        self.atten_rgb_3 = self.channel_attention(256*block.expansion)
+        self.atten_depth_3 = self.channel_attention(256*block.expansion)
+        self.atten_rgb_4 = self.channel_attention(512*block.expansion)
+        self.atten_depth_4 = self.channel_attention(512*block.expansion)
 
         self.inplanes = 64
         self.layer1_m = self._make_layer(block, 64, layers[0])
@@ -164,6 +164,7 @@ class ACNet(BasicModule):
 
         return nn.Sequential(*[pool, conv, activation])
 
+
     def _load_resnet_pretrained(self):
         pretrain_dict = model_zoo.load_url(model_urls['resnet50'])
         model_dict = {}
@@ -186,6 +187,46 @@ class ACNet(BasicModule):
                     model_dict[k[:6]+'_m'+k[6:]] = v
         state_dict.update(model_dict)
         self.load_state_dict(state_dict)
+
+
+class BasicBlock(nn.Module):
+    expansion = 1
+
+    def __init__(self, inplanes, planes, stride=1, downsample=None, groups=1,
+                 base_width=64, dilation=1, norm_layer=None):
+        super(BasicBlock, self).__init__()
+        if norm_layer is None:
+            norm_layer = nn.BatchNorm2d
+        if groups != 1 or base_width != 64:
+            raise ValueError('BasicBlock only supports groups=1 and base_width=64')
+        if dilation > 1:
+            raise NotImplementedError("Dilation > 1 not supported in BasicBlock")
+        # Both self.conv1 and self.downsample layers downsample the input when stride != 1
+        self.conv1 = conv3x3(inplanes, planes, stride)
+        self.bn1 = norm_layer(planes)
+        self.relu = nn.ReLU(inplace=True)
+        self.conv2 = conv3x3(planes, planes)
+        self.bn2 = norm_layer(planes)
+        self.downsample = downsample
+        self.stride = stride
+
+    def forward(self, x):
+        identity = x
+
+        out = self.conv1(x)
+        out = self.bn1(out)
+        out = self.relu(out)
+
+        out = self.conv2(out)
+        out = self.bn2(out)
+
+        if self.downsample is not None:
+            identity = self.downsample(x)
+
+        out += identity
+        out = self.relu(out)
+
+        return out
 
 
 class Bottleneck(nn.Module):
@@ -223,7 +264,9 @@ class Bottleneck(nn.Module):
 
         out += residual
         out = self.relu(out)
+
         return out
+
 
 def conv3x3(in_planes, out_planes, stride=1):
     "3x3 convolution with padding"

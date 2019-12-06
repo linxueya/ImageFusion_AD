@@ -18,26 +18,28 @@ def test(**kwargs):
     # configure model
     model = getattr(models, opt.model)().eval()
     if opt.load_model_path:
-        model.load(opt.load_model_path)
+        model.load(opt.load_model_path, opt.use_gpu)
     model.to(opt.device)
 
     # data
     train_data = MriPet(opt.test_data_root,opt.test_data_root1, test=True)
     test_dataloader = DataLoader(train_data,batch_size=opt.batch_size,shuffle=False,num_workers=opt.num_workers)
     results = []
+    correct = 0
     for ii,(data1,data2,path) in tqdm(enumerate(test_dataloader)):
         input1 = data1.to(opt.device)
         input2 = data2.to(opt.device)
+        path1 = path.to(opt.device)
         score = model(input1,input2)
         probability = t.nn.functional.softmax(score,dim=1)[:,0].detach().tolist()
-        # label = score.max(dim = 1)[1].detach().tolist()
-        
+        pred = score.max(1, keepdim=True)[1]  # get the index of the max log-probability
+        correct += pred.eq(path1.view_as(pred)).sum().item()
         batch_results = [(path_.item(),probability_) for path_,probability_ in zip(path,probability) ]
-
         results += batch_results
-    write_csv(results,opt.result_file)
 
-    return results
+    print('Test set   Accuracy: ({:.2f}%)\n'.format(100 * correct / len(train_data)))
+    write_csv(results,opt.result_file)
+    # return results
 
 def write_csv(results,file_name):
     import csv
@@ -48,14 +50,17 @@ def write_csv(results,file_name):
     
 def train(**kwargs):
     opt._parse(kwargs)
-    print(opt)
+
     # vis = Visualizer(opt.env,port = opt.vis_port)
 
     # step1: configure model
     model = getattr(models, opt.model)()
+
     if opt.load_model_path:
         model.load(opt.load_model_path)
     model.to(opt.device)
+    if opt.model == 'AlexNetCom':
+        t.backends.cudnn.enabled = False #因为batch normalize的原因需要加上这一句
 
     # step2: data
     train_data = MriPet(opt.train_data_root,opt.train_data_root1,train=True)
@@ -111,7 +116,7 @@ def train(**kwargs):
                     ipdb.set_trace()
 
         if epoch % 50 == 49:
-            model.save()
+            model.save(epoch=epoch,label=opt.label_name)
 
         # validate and visualize
         val_cm,val_accuracy = val(model,val_dataloader)

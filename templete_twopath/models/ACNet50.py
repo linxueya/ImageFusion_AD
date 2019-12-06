@@ -12,11 +12,11 @@ model_urls = {
     'resnet152': 'https://download.pytorch.org/models/resnet152-b121ed2d.pth',
 }
 
-class ACNet(BasicModule):
+class ACNet50(BasicModule):
     def __init__(self, num_classes=2, pretrained=False):
-        super(ACNet, self).__init__()
+        super(ACNet50, self).__init__()
 
-        self.model_name = 'ACNet'
+        self.model_name = 'ACNet50'
 
         layers = [3, 4, 6, 3]
         block = Bottleneck

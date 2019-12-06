@@ -38,13 +38,13 @@ class MriPet(data.Dataset):
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.ToTensor(),
-                T.Normalize(mean=[0.055802], std=[0.107193])
+                T.Normalize(mean=[0.058695], std=[0.111475])
             ])
             self.transforms_pet = T.Compose([
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.ToTensor(),
-                T.Normalize(mean=[0.370814], std=[0.261288])
+                T.Normalize(mean=[0.336733], std=[0.236243])
             ])
         else:
             self.transforms_mri = T.Compose([
@@ -52,14 +52,14 @@ class MriPet(data.Dataset):
                 T.CenterCrop(224),
                 T.RandomHorizontalFlip(),
                 T.ToTensor(),
-                T.Normalize(mean=[0.055708], std=[0.107309])
+                T.Normalize(mean=[0.058818], std=[0.111788])
             ])
             self.transforms_pet = T.Compose([
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.RandomHorizontalFlip(),
                 T.ToTensor(),
-                T.Normalize(mean=[0.372632], std=[0.261153])
+                T.Normalize(mean=[0.336580], std=[0.235581])
             ])
 
 
@@ -70,7 +70,16 @@ class MriPet(data.Dataset):
         """
         mri_path = self.imgs_mri[index]
         pet_path = self.imgs_pet[index]
-        label = 1 if 'NC' in mri_path.split('/')[-1] else 0
+
+        label = 0 if 'AD' in mri_path.split('/')[-1] else 1
+        # if 'NC' in mri_path.split('/')[-1]:
+        #     label = 0
+        # elif 'AD' in mri_path.split('/')[-1]:
+        #     label = 1
+        # elif 'EMCI' in mri_path.split('/')[-1]:
+        #     label = 2
+        # else:
+        #     label = 3
 
         data_mri = Image.open(mri_path)
         data_mri = self.transforms_mri(data_mri)
@@ -84,8 +93,8 @@ class MriPet(data.Dataset):
         return len(self.imgs_mri)
 
 # import pdb
-# root1 = '/home/shimy/FusionData/total_mri/train'
-# root2 = '/home/shimy/FusionData/total_pet/train'
+# root1 = '/home/shimy/FusionData/data_mri/train'
+# root2 = '/home/shimy/FusionData/data_pet/train'
 # val_data = MriPet(root1, root2, train=False)
 # for data, path,data2,path2, label in val_data:
 #     print(data.size(), data2.size(), label)
