@@ -2,14 +2,14 @@ import models
 import torch
 import torch.nn as nn
 
-input1 = torch.randn(1,1,224,224)
-input2 = torch.randn(1,1,224,224)
+input1 = torch.randn(3,1,224,224)
+input2 = torch.randn(3,1,224,224)
 
 pool = nn.AdaptiveAvgPool2d(1)
 conv = nn.Conv2d(64, 32, kernel_size=1)
 activation = nn.Sigmoid()  # todo modify the activation function
 att = nn.Sequential(*[pool, conv, activation])
-model = getattr(models, 'ACNet34')()
+model = getattr(models, 'ACNet34cat')()
 print(model)
 output = model(input1,input2)
 
