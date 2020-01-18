@@ -12,7 +12,7 @@ from .basic_module import BasicModule
 
 
 class AlexNetCom(BasicModule):
-    def __init__(self):
+    def __init__(self, num_classes=4):
         super(AlexNetCom, self).__init__()
 
         self.model_name = 'AlexNetCom'
@@ -60,7 +60,7 @@ class AlexNetCom(BasicModule):
             nn.Dropout(),
             nn.Linear(4096, 256),
             nn.ReLU(inplace=True),
-            nn.Linear(256, 2),
+            nn.Linear(256, num_classes),
         )
 
     def forward(self, x1, x2):

@@ -33,18 +33,18 @@ class MriPet(data.Dataset):
         self.imgs_pet_mean = []
         self.imgs_pet_std = []
 
-        if self.test or not train:
+        if self.test:
             self.transforms_mri = T.Compose([
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.ToTensor(),
-                T.Normalize(mean=[0.058695], std=[0.111475])
+                T.Normalize(mean=[0.059702], std=[0.113304])
             ])
             self.transforms_pet = T.Compose([
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.ToTensor(),
-                T.Normalize(mean=[0.336733], std=[0.236243])
+                T.Normalize(mean=[0.335203], std=[0.237316])
             ])
         else:
             self.transforms_mri = T.Compose([
@@ -52,14 +52,14 @@ class MriPet(data.Dataset):
                 T.CenterCrop(224),
                 T.RandomHorizontalFlip(),
                 T.ToTensor(),
-                T.Normalize(mean=[0.058818], std=[0.111788])
+                T.Normalize(mean=[0.060238], std=[0.113941])
             ])
             self.transforms_pet = T.Compose([
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.RandomHorizontalFlip(),
                 T.ToTensor(),
-                T.Normalize(mean=[0.336580], std=[0.235581])
+                T.Normalize(mean=[0.334345], std=[0.237282])
             ])
 
 
@@ -71,15 +71,15 @@ class MriPet(data.Dataset):
         mri_path = self.imgs_mri[index]
         pet_path = self.imgs_pet[index]
 
-        label = 0 if 'AD' in mri_path.split('/')[-1] else 1
-        # if 'NC' in mri_path.split('/')[-1]:
-        #     label = 0
-        # elif 'AD' in mri_path.split('/')[-1]:
-        #     label = 1
-        # elif 'EMCI' in mri_path.split('/')[-1]:
-        #     label = 2
-        # else:
-        #     label = 3
+        # label = 0 if 'AD' in mri_path.split('/')[-1] else 1
+        if 'NC' in mri_path.split('/')[-1]:
+            label = 0
+        elif 'AD' in mri_path.split('/')[-1]:
+            label = 1
+        elif 'SMCI' in mri_path.split('/')[-1]:
+            label = 2
+        else:
+            label = 3
 
         data_mri = Image.open(mri_path)
         data_mri = self.transforms_mri(data_mri)

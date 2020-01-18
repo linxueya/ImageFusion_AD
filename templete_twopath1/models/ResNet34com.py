@@ -1,4 +1,5 @@
 # coding:utf8
+import torch
 from .basic_module import BasicModule
 from torch import nn
 from torch.nn import functional as F
@@ -26,20 +27,20 @@ class ResidualBlock(nn.Module):
         return F.relu(out)
 
 
-class ResNet34(BasicModule):
+class ResNet34com(BasicModule):
     """
     实现主module：ResNet34
     ResNet34包含多个layer，每个layer又包含多个Residual block
     用子module来实现Residual block，用_make_layer函数来实现layer
     """
 
-    def __init__(self, num_classes=2):
-        super(ResNet34, self).__init__()
-        self.model_name = 'resnet34'
+    def __init__(self, num_classes=4):
+        super(ResNet34com, self).__init__()
+        self.model_name = 'ResNet34com'
 
         # 前几层: 图像转换
         self.pre = nn.Sequential(
-            nn.Conv2d(3, 64, 7, 2, 3, bias=False),
+            nn.Conv2d(1, 64, 7, 2, 3, bias=False),
             nn.BatchNorm2d(64),
             nn.ReLU(inplace=True),
             nn.MaxPool2d(3, 2, 1))
@@ -51,7 +52,7 @@ class ResNet34(BasicModule):
         self.layer4 = self._make_layer(512, 512, 3, stride=2)
 
         # 分类用的全连接
-        self.fc = nn.Linear(512, num_classes)
+        self.fc = nn.Linear(512 * 2, num_classes)
 
     def _make_layer(self, inchannel, outchannel, block_num, stride=1):
         """
@@ -68,14 +69,21 @@ class ResNet34(BasicModule):
             layers.append(ResidualBlock(outchannel, outchannel))
         return nn.Sequential(*layers)
 
-    def forward(self, x):
-        x = self.pre(x)
+    def forward(self, x1, x2):
+        x1 = self.pre(x1)
+        x1 = self.layer1(x1)
+        x1 = self.layer2(x1)
+        x1 = self.layer3(x1)
+        x1 = self.layer4(x1)
+        x1 = F.avg_pool2d(x1, 7)
+        x1 = x1.view(x1.size(0), -1)
 
-        x = self.layer1(x)
-        x = self.layer2(x)
-        x = self.layer3(x)
-        x = self.layer4(x)
-
-        x = F.avg_pool2d(x, 7)
-        x = x.view(x.size(0), -1)
+        x2 = self.pre(x2)
+        x2 = self.layer1(x2)
+        x2 = self.layer2(x2)
+        x2 = self.layer3(x2)
+        x2 = self.layer4(x2)
+        x2 = F.avg_pool2d(x2, 7)
+        x2 = x2.view(x2.size(0), -1)
+        x = torch.cat([x1, x2], 1)
         return self.fc(x)

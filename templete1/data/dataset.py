@@ -9,7 +9,7 @@ import pickle
 
 class DogCat(data.Dataset):
 
-    def __init__(self, root, transforms=None, train=True, test=False):
+    def __init__(self, root, train=True, test=False):
         """
         主要目标： 获取所有图片的地址，并根据训练，验证，测试划分数据
         """
@@ -29,12 +29,12 @@ class DogCat(data.Dataset):
         else:
             self.imgs = imgs[int(0.7 * imgs_num):]
 
-        if self.test or not train:
+        if self.test:
             self.transforms = T.Compose([
                 T.Resize(224),
                 T.CenterCrop(224),
                 T.ToTensor(),
-                T.Normalize(mean=[0.055802], std=[0.107193])
+                T.Normalize(mean=[0.059702], std=[0.113304])
             ])
         else:
             self.transforms = T.Compose([
@@ -42,7 +42,7 @@ class DogCat(data.Dataset):
                 T.CenterCrop(224),
                 T.RandomHorizontalFlip(),
                 T.ToTensor(),
-                T.Normalize(mean=[0.055708], std=[0.107309])
+                T.Normalize(mean=[0.060238], std=[0.113941])
             ])
 
     def __getitem__(self, index):
@@ -50,7 +50,18 @@ class DogCat(data.Dataset):
         一次返回一张图片的数据
         """
         img_path = self.imgs[index]
-        label = 1 if 'NC' in img_path.split('/')[-1] else 0
+
+        # label = 0 if 'SMCI' in img_path.split('/')[-1] else 1
+        if 'NC' in img_path.split('/')[-1]:
+            label = 0
+        elif 'AD' in img_path.split('/')[-1]:
+            label = 1
+        elif 'SMCI' in img_path.split('/')[-1]:
+            label = 2
+        else:
+            label = 3
+
+
         data = Image.open(img_path)
         data = self.transforms(data)
         return data, label
@@ -58,9 +69,9 @@ class DogCat(data.Dataset):
     def __len__(self):
         return len(self.imgs)
 
-# import pdb
-# val_data = DogCat('/home/shimy/FusionData/total_mri/train', train=False)
+# import ipdb
+# val_data = DogCat('/home/shimy/FusionData/gray_mri/validation', test=True)
 # for data, label, path in val_data:
-#     print(data.size(), path, label)
-#     pdb.set_trace()
+#     print( path, label)
+#     # ipdb.set_trace()
 

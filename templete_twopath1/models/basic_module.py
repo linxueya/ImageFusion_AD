@@ -32,7 +32,7 @@ class BasicModule(t.nn.Module):
         return name
 
     def get_optimizer(self, lr, weight_decay):
-        return t.optim.SGD(self.parameters(), lr=lr, weight_decay=weight_decay)
+        return t.optim.Adam(self.parameters(), lr=lr, weight_decay=weight_decay)
 
 
 class Flat(t.nn.Module):
