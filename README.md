@@ -1,24 +1,35 @@
-# Multimodal Neuroimaging Feature Learning With Multimodal Convolutional Neuro Networks for Diagnosis of Alzheimer’s Disease
+
+
+## [Multi-modal Neuroimaging Feature Fusion for Diagnosis of Alzheimer’s Disease](https://doi.org/10.1016/j.jneumeth.2020.108795)
+
+> [TaoZhang](https://www.sciencedirect.com/science/article/pii/S0165027020302181?via%3Dihub#!) [MingyangShi](https://www.sciencedirect.com/science/article/pii/S0165027020302181?via%3Dihub#!) 
+>
+> School of Electronic and Information Engineering, Tianjin University, 300387, Tianjin, China
+
 ## Introduction
-![image](https://timgsa.baidu.com/timg?image&quality=80&size=b9999_10000&sec=1567352132330&di=1c3b7381caa9eddedc5c11b83b56d652&imgtype=0&src=http%3A%2F%2F5b0988e595225.cdn.sohucs.com%2Fimages%2F20181218%2F2fa4a33cadea4fd58609f104b31bd788.jpeg)
-> MRI从大脑结构上大脑的萎缩进行研究，DTI用于分析大脑微结构水平的水扩散，而PET则利用脑葡萄糖代谢率进行AD分类。这些生物标志物产生互补的信息，即，不同的模式从不同的角度获取疾病信息，从而提高对疾病模式的理解。9
-## ImageFusion-AD
+> Compared to single-modal neuroimages classification of AD, multi-modal classification can achieve better performance by fusing different information. Exploring synergy among various multi-modal neuroimages is contributed to identifying the pathological process of neurological disorders. However, it is still problematic to effectively exploit multi-modal information since lack of effective fusion method. In this paper, we propose a deep multi-modal fusion network based on the attention mechanism, which can selectively extract features from MRI and PET branches and suppress the irrelevant information. In the attention model, the ratio of each modal fusion is assigned automatically according to the importance of the data. Different from the early fusion and the late fusion, a hierarchical fusion method is adopted to ensure that original features are not damaged in feature fusion. Benefit from the attention model with hierarchical structure, the proposed network is capable of exploiting low-level and high-level features. Evaluating the model on the ADNI dataset, the experimental results show that it outperforms the state-of-the-art methods. In particular, the final classification results of the NC/AD, SMCI/PMCI and Four-Class are 95.21 %, 89.79%, and 86.15%, respectively.
+## Implement Details
 
 ### pre-progress
 #### Format
   - DCM NIFTI ECAT HRRT
-  每种数据格式对应的文件数目不一样。DCM将每个切片单独保存，而其他的数据格式则以一个文件保存整个大脑样本。这样无法读入数据进而输入神经网络。
+    每种数据格式对应的文件数目不一样。DCM将每个切片单独保存，而其他的数据格式则以一个文件保存整个大脑样本。这样无法读入数据进而输入神经网络。
   - 而对于单一的格式如DCM，对应的切片数量也不一样，在选择top N切片时，每个切片对应的位置可能会有一定的差异。因此我们需要将每个样本归一化到相同的切片数量。
+  - 综合上述因素最后选择的是NIFTI
 #### 3D reconstruction
   - 将每个样本重构成3D模型，在重采样抽取每个切片。
-#### toolbox
+#### Toolbox
 - spm:fmri处理需要slice timing， pet不需要
   pre_fix a  slice timing 隔层扫描（1 3 5 ……6 4 2）消除时间上的差异，线性回归
-          r  realign 头动校正
-          y  coregister 在这一步需要AC校正（display设置原点）
-          c  segment 分割结构像（白质，灰质，脑脊液）
-          w  normalise
-          s  smooth
+- ​        r  realign 头动校正
+  ​        y  coregister 在这一步需要AC校正（display设置原点）
+  ​        c  segment 分割结构像（白质，灰质，脑脊液）
+  ​        w  normalise
+  ​        s  smooth
+- cat12 ：- mwp1outputResult gray mater 
+  - mwp2outputResult white mater
+    p0outputResult   unknown  
+    wmoutputResult   unknown  
 
 
 ### discussion
@@ -53,7 +64,7 @@
 
 ### 神经网络训练
 > 利用deep-fused nets论文里的思想对两种模态的网络进行融合，主要分为3个子网络，2个深层网络负责提取两种模态的特征，一个浅层网络负责融合
-  
+
 - dataloader的均值方差选择
 
 ```
@@ -65,19 +76,14 @@ elif 'imagenet' in args.dataset:
    std_vals = [0.229, 0.224, 0.225]
 ```
 - 遇到的问题
-> 网络的泛化能力太差，将数据集打乱重新生成后，原有的模型推理之后的准确率就会发生变化
-  解决办法：将生成的数据不经过裁剪这一步
 > cat12 的输出文件是什么？
-  mwp1outputResult gray mater 94.74 mri 96.20 pet
-  mwp2outputResult white mater
-  p0outputResult   unknown  75%
+  mwp1outputResult gray mater 
+> mwp2outputResult white mater
+  p0outputResult   unknown  
   wmoutputResult   unknown  
 
 ### deep fused net
 > 以deep fused net 和 acnet 为例对多模态融合网络进行优化
-    acnet 99%
+    
 
-### train log
-
-ACNet   84
-VGGNet  83
+### 
